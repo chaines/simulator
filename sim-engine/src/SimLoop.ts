@@ -4,7 +4,7 @@ import CEvent from './Event';
 
 const SimLoop = (drawn?: boolean, loopFunc?: (arg0: any) => any) => {
   const agents: Agent[] = [];
-  const world = new World(100, 100);
+  let world = new World(100, 100);
   const loopEvent = new CEvent<Agent>('loop');
   let go = false;
 
@@ -20,7 +20,7 @@ const SimLoop = (drawn?: boolean, loopFunc?: (arg0: any) => any) => {
 
   const loop = () => {
     for (const a of agents) {
-      a.act(world);
+      a.act();
     }
     loopEvent.fire(agents);
     if (go) interval(loop);
@@ -41,6 +41,7 @@ const SimLoop = (drawn?: boolean, loopFunc?: (arg0: any) => any) => {
       }
     },
     getWorld: () => world,
+    setWorld: (world: World) => (world = world),
     pause: () => {
       go = false;
     },

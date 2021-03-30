@@ -1,15 +1,13 @@
 import World from './worlds/BasicWorld';
-
-export type Coordinates = [number, number];
+import Coordinates from './utils/Coordinates';
 
 export interface Entity {
-  x: number;
-  y: number;
+  coords: Coordinates;
   name: string;
 }
 
 export interface Agent extends Entity {
-  act: (world: World) => void;
+  act: () => void;
   isAlive: () => boolean;
   isActive: () => boolean;
 }

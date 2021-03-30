@@ -1,14 +1,12 @@
-import { Coordinates, Agent } from '..';
-import World from '../worlds/BasicWorld';
+import Vector2 from '../utils/Vector2';
+import { Agent } from '..';
+import Coordinates from '../utils/Coordinates';
+import BasicWorld from '../worlds/BasicWorld';
 
 class BasicAgent implements Agent {
   hunger: number;
   name: string;
-  x: number;
-  y: number;
-  constructor([x, y]: Coordinates) {
-    this.x = x;
-    this.y = y;
+  constructor(public coords: Coordinates, public world?: BasicWorld) {
     this.hunger = 0;
     this.name = 'Basic';
   }
@@ -21,15 +19,14 @@ class BasicAgent implements Agent {
     return true;
   }
 
-  act(world: World) {
-    do {
-      this.x += Math.random() - 0.5;
-      this.y += Math.random() - 0.5;
-    } while (!world.inBounds([this.x, this.y]));
-    const nearby = world.getNearby([this.x, this.y], 5);
-    if (nearby.length) {
-      console.log('Hello friendo');
+  act() {
+    if (this.world === undefined) {
+      return;
     }
+    let v: Vector2;
+    do {
+      v = new Vector2(Math.random() - 0.5, Math.random() - 0.5);
+    } while (!this.world.inBounds(this.coords.add(v)));
   }
 }
 

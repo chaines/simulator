@@ -1,4 +1,5 @@
 import { Entity } from '..';
+import Coordinates from '../utils/Coordinates';
 
 /**
  * Worlds are simple 2 dimensional planes of existence, on which agents and objects can exist.
@@ -43,12 +44,10 @@ class World {
     return false;
   }
 
-  getNearby([x, y]: Coordinates, range: number): Entity[] {
+  getNearby(coords: Coordinates, range: number): Entity[] {
     const nearby: Entity[] = [];
     for (const e of this.entities) {
-      const distX = e.x - x;
-      const distY = e.y - y;
-      const distance = Math.sqrt(distX * distX + distY * distY);
+      const distance = coords.distanceTo(e.coords);
       if (distance <= range) {
         nearby.push(e);
       }
@@ -56,11 +55,9 @@ class World {
     return nearby;
   }
 
-  inBounds([x, y]: Coordinates): boolean {
-    return x <= this.x && x >= 0 && y <= this.y && y >= 0;
+  inBounds(coords: Coordinates): boolean {
+    return coords.x <= this.x && coords.x >= 0 && coords.y <= this.y && coords.y >= 0;
   }
 }
-
-type Coordinates = [number, number];
 
 export default World;

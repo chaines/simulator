@@ -1,12 +1,9 @@
-import { Coordinates, Entity } from '../types';
+import { Entity } from '../types';
+import Coordinates from '../utils/Coordinates';
 
 class Food implements Entity {
-  x: number;
-  y: number;
   name: string;
-  constructor([x, y]: Coordinates) {
-    this.x = x;
-    this.y = y;
+  constructor(public coords: Coordinates) {
     this.name = 'Food';
   }
 }
