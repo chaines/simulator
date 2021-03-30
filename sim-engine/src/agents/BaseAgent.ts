@@ -3,13 +3,8 @@ import { Agent } from '..';
 import Coordinates from '../utils/Coordinates';
 import BasicWorld from '../worlds/BasicWorld';
 
-class BasicAgent implements Agent {
-  hunger: number;
-  name: string;
-  constructor(public coords: Coordinates, public world?: BasicWorld) {
-    this.hunger = 0;
-    this.name = 'Basic';
-  }
+class BaseAgent implements Agent {
+  constructor(public coords: Coordinates, public world?: BasicWorld, public name: string = 'Basic') {}
 
   isAlive() {
     return true;
@@ -30,4 +25,4 @@ class BasicAgent implements Agent {
   }
 }
 
-export default BasicAgent;
+export default BaseAgent;

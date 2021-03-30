@@ -40,7 +40,7 @@ class World {
   removeEntity(e: Entity) {
     const index = this.entities.indexOf(e);
     if (index !== -1) {
-      this.entities.splice(index);
+      this.entities.splice(index, 1);
       return true;
     }
     return false;

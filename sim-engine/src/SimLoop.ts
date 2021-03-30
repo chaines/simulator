@@ -1,11 +1,12 @@
-import { Agent } from './types';
+import { Agent, Entity } from './types';
 import World from './worlds/BasicWorld';
 import CEvent from './Event';
+import Food from './objects/Food';
 
 const SimLoop = (drawn?: boolean, loopFunc?: (arg0: any) => any) => {
   const agents: Agent[] = [];
   let world = new World(100, 100);
-  const loopEvent = new CEvent<Agent>('loop');
+  const loopEvent = new CEvent<Entity>('loop');
   let go = false;
 
   // Define a default interval function. If we're displaying/rendering the simulation,
@@ -22,7 +23,7 @@ const SimLoop = (drawn?: boolean, loopFunc?: (arg0: any) => any) => {
     for (const a of agents) {
       a.act();
     }
-    loopEvent.fire(agents);
+    loopEvent.fire(world.entities);
     if (go) interval(loop);
   };
 
@@ -41,7 +42,7 @@ const SimLoop = (drawn?: boolean, loopFunc?: (arg0: any) => any) => {
       }
     },
     getWorld: () => world,
-    setWorld: (world: World) => (world = world),
+    setWorld: (w: World) => (world = w),
     pause: () => {
       go = false;
     },
@@ -53,7 +54,7 @@ const SimLoop = (drawn?: boolean, loopFunc?: (arg0: any) => any) => {
       go = true;
       loop();
     },
-    onLoop: (listener: (arg0: readonly Agent[]) => any) => {
+    onLoop: (listener: (arg0: readonly Entity[]) => any) => {
       loopEvent.registerCallback(listener);
     },
   };

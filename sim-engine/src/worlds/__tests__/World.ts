@@ -1,15 +1,15 @@
 import BasicWorld from '../BasicWorld';
-import BasicAgent from '../../agents/BasicAgent';
+import BaseAgent from '../../agents/BaseAgent';
 import Coordinates from '../../utils/Coordinates';
 
 describe('Basic World Class', () => {
   let world: BasicWorld;
-  let agent1: BasicAgent;
-  let agent2: BasicAgent;
+  let agent1: BaseAgent;
+  let agent2: BaseAgent;
   beforeEach(() => {
     world = new BasicWorld(100, 100);
-    agent1 = new BasicAgent(new Coordinates(1, 1));
-    agent2 = new BasicAgent(new Coordinates(1, 2));
+    agent1 = new BaseAgent(new Coordinates(1, 1));
+    agent2 = new BaseAgent(new Coordinates(1, 2));
   });
 
   describe('addEntity', () => {
@@ -68,13 +68,13 @@ describe('Basic World Class', () => {
   });
 
   describe('getNearby', () => {
-    let agent3: BasicAgent;
-    let agent4: BasicAgent;
-    let agent5: BasicAgent;
+    let agent3: BaseAgent;
+    let agent4: BaseAgent;
+    let agent5: BaseAgent;
     beforeEach(() => {
-      agent3 = new BasicAgent(new Coordinates(10, 12));
-      agent4 = new BasicAgent(new Coordinates(15, 12));
-      agent5 = new BasicAgent(new Coordinates(100, 90));
+      agent3 = new BaseAgent(new Coordinates(10, 12));
+      agent4 = new BaseAgent(new Coordinates(15, 12));
+      agent5 = new BaseAgent(new Coordinates(100, 90));
       world.addEntity(agent1);
       world.addEntity(agent2);
       world.addEntity(agent3);

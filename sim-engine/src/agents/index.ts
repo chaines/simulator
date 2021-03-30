@@ -1,1 +1,1 @@
-export { default as BasicAgent } from './BasicAgent';
+export { default as BaseAgent } from './BaseAgent';

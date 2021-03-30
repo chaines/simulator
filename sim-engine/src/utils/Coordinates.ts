@@ -22,6 +22,9 @@ class Coordinates {
   moveY(y: number) {
     return new Coordinates(this.x, this.y + y);
   }
+  equals(c: Coordinates) {
+    return Math.abs(this.x - c.x) < 0.01 && Math.abs(this.y - c.y) < 0.01;
+  }
 }
 
 export default Coordinates;

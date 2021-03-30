@@ -1,26 +1,30 @@
 import Vector2 from '../utils/Vector2';
 import Food from '../objects/Food';
-import { Agent } from '../types';
 import Coordinates from '../utils/Coordinates';
 import BasicWorld from '../worlds/BasicWorld';
+import BaseAgent from './BaseAgent';
 
-class HungryAgent implements Agent {
-  public hunger: number;
-  public name: string;
+class HungryAgent extends BaseAgent {
+  public energy: number;
   public speed: number;
   public size: number;
   public detectionRange: number;
   public food: number;
   public homeCoords: Coordinates;
+  public nextStatus: number;
   private currDirection: Vector2;
+  static DEAD = 0;
+  static ALIVE = 1;
+  static BREED = 2;
 
   constructor(public coords: Coordinates, public world?: BasicWorld) {
-    this.hunger = 0;
-    this.name = 'Hungry';
+    super(coords, world, 'Hungry');
+    this.energy = 100;
     this.food = 0;
     this.size = 1;
     this.speed = 1;
-    this.detectionRange = 3;
+    this.detectionRange = 30;
+    this.nextStatus = HungryAgent.ALIVE;
     this.homeCoords = new Coordinates(coords.x, coords.y);
     if (world !== undefined) {
       this.currDirection = this.coords.vectorTo(world.center).normalize();
@@ -30,7 +34,7 @@ class HungryAgent implements Agent {
   }
 
   isAlive() {
-    return this.hunger < 10;
+    return this.nextStatus !== HungryAgent.DEAD;
   }
 
   isActive() {
@@ -39,6 +43,9 @@ class HungryAgent implements Agent {
 
   act() {
     if (this.world === undefined) {
+      return;
+    }
+    if (this.nextStatus === HungryAgent.DEAD) {
       return;
     }
     const detected = this.world.getNearby(this.coords, this.detectionRange);
@@ -51,18 +58,37 @@ class HungryAgent implements Agent {
       }
     }
     if (closestFood !== undefined) {
-      this.currDirection = this.coords.vectorTo(closestFood.coords).normalize().multiply(this.speed);
+      const foodVector = this.coords.vectorTo(closestFood.coords);
+      if (foodVector.magnitude() < this.speed) {
+        this.currDirection = foodVector;
+      } else {
+        this.currDirection = foodVector.normalize().multiply(this.speed);
+      }
     } else {
       do {
         this.currDirection = this.currDirection.rotate(Math.random() - 0.5);
       } while (!this.world?.inBounds(this.coords.add(this.currDirection)));
     }
-    this.walk();
+    if (closestFood !== undefined && closestFood.coords.equals(this.coords)) {
+      this.eat(closestFood);
+    } else {
+      this.walk();
+    }
+  }
+
+  eat(food: Food) {
+    this.energy += 100;
+    this.food++;
+    this.world?.removeEntity(food);
+    this.currDirection = this.coords.vectorTo(this.homeCoords).normalize().multiply(this.speed);
   }
 
   walk() {
     this.coords = this.coords.add(this.currDirection);
-    this.hunger += this.speed * this.speed;
+    this.energy -= this.speed * this.speed * 2;
+    if (this.energy <= 0) {
+      this.nextStatus = HungryAgent.DEAD;
+    }
   }
 }
 
