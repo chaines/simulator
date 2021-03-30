@@ -155,4 +155,17 @@ describe('Vector2', () => {
       expect(new Vector2(1, -1).direction()).toBeCloseTo(-Math.PI / 4);
     });
   });
+
+  describe('rotate', () => {
+    it('rotates in the positive direction', () => {
+      expect(vector1.rotate(Math.PI).x).toBeCloseTo(-1);
+      expect(vector1.rotate(Math.PI).y).toBeCloseTo(-1);
+      expect(vector4.rotate(Math.PI / 2).x).toBeCloseTo(-1);
+      expect(vector4.rotate(Math.PI / 2).y).toBeCloseTo(0);
+    });
+    it('rotates in the negative direction', () => {
+      expect(vector1.rotate(-2 * Math.PI).x).toBeCloseTo(1);
+      expect(vector1.rotate(-Math.PI / 2).x).toBeCloseTo(1);
+    });
+  });
 });

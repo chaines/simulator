@@ -1,6 +1,7 @@
 class Vector2 {
   readonly x: number;
   readonly y: number;
+  static UNIT_VECTOR: Vector2 = new Vector2(1, 0);
   constructor(x: number, y: number) {
     this.x = x;
     this.y = y;
@@ -50,6 +51,12 @@ class Vector2 {
    */
   direction() {
     return Math.atan2(this.y, this.x);
+  }
+
+  rotate(rads: number) {
+    const newDir = this.direction() + rads;
+    const magnitude = this.magnitude();
+    return new Vector2(Math.cos(newDir) * magnitude, Math.sin(newDir) * magnitude);
   }
 }
 
