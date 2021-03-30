@@ -1,6 +1,5 @@
 import { Entity } from '..';
 import Coordinates from '../utils/Coordinates';
-import CEvent from '../Event';
 
 export type BaseWorldOptions = {
   x: number;

@@ -1,4 +1,3 @@
-import { Agent } from '.';
 class CEvent<T> {
   name: string;
   callbacks: ((arg0: readonly T[]) => any | void)[];

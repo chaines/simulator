@@ -1,7 +1,7 @@
 import BaseAgent from '../agents/BaseAgent';
 import { Entity, Renderer } from '../types';
 import BaseWorld from '../worlds/BaseWorld';
-import CEvent from '../Event';
+import CEvent from '../utils/Event';
 
 export type BaseLoopOptions = {
   fireEvents?: boolean;
