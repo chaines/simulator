@@ -1,13 +1,13 @@
-import BasicWorld from '../BasicWorld';
+import BaseWorld from '../BaseWorld';
 import BaseAgent from '../../agents/BaseAgent';
 import Coordinates from '../../utils/Coordinates';
 
 describe('Basic World Class', () => {
-  let world: BasicWorld;
+  let world: BaseWorld;
   let agent1: BaseAgent;
   let agent2: BaseAgent;
   beforeEach(() => {
-    world = new BasicWorld(100, 100);
+    world = new BaseWorld({ x: 100, y: 100 });
     agent1 = new BaseAgent(new Coordinates(1, 1));
     agent2 = new BaseAgent(new Coordinates(1, 2));
   });
@@ -123,7 +123,7 @@ describe('Basic World Class', () => {
     });
     it('should properly adjust to the size of the world', () => {
       expect(world.inBounds(new Coordinates(99, 99))).toBe(true);
-      expect(new BasicWorld(50, 50).inBounds(new Coordinates(99, 99))).toBe(false);
+      expect(new BaseWorld({ x: 50, y: 50 }).inBounds(new Coordinates(99, 99))).toBe(false);
     });
   });
 });

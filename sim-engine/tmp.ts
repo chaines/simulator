@@ -1,23 +1,27 @@
-import SimLoop, { Agent } from './src';
-import BasicAgent from './src/agents/BasicAgent';
+import GeneticDriftWorld from './src/worlds/GeneticDriftWorld';
+import BaseLoop from './src/loops/BaseLoop';
+import ConsoleRenderer from './src/renderers/ConsoleRenderer';
+import BaseAgent from './src/agents/BaseAgent';
+import HungryAgent from './src/agents/HungryAgent';
 
-const loop = SimLoop(true, (f) => setTimeout(f, 50));
-
-for (let i = 0; i < 10; i++) {
-  let x = Math.floor(Math.random() * 100);
-  let y = Math.floor(Math.random() * 100);
-  const a = new BasicAgent([x, y]);
-  loop.addAgent(a);
-}
-
-let day = 0;
-const onLoop = (arg0: readonly Agent[]) => {
-  day++;
-  console.log(`Day ${day}:`);
-  for (let agent of arg0) {
-    console.log(agent.x + ', ' + agent.y);
+let world = new GeneticDriftWorld({ x: 25, y: 25, foodPerCycle: 200 });
+let renderer = new ConsoleRenderer();
+let loop = new BaseLoop({ fireEvents: true, tickFunc: setTimeout, world: world });
+let generations = 0;
+loop.addEventListener('cycle', (entities) => {
+  let agents: HungryAgent[] = entities.filter((e) => e instanceof BaseAgent) as HungryAgent[];
+  generations++;
+  console.log(`Gen ${generations}`);
+  console.log(agents.length);
+  let totalSpeed = 0;
+  let totalSize = 0;
+  let totalSense = 0;
+  for (const a of agents) {
+    totalSpeed += a.speed;
+    totalSize += a.size;
+    totalSense += a.detectionRange;
   }
-};
-
-loop.onLoop(onLoop);
+  console.log('Avg Speed: ', totalSpeed / agents.length);
+  console.log('Avg Detection Range: ', totalSense / agents.length);
+});
 loop.start();

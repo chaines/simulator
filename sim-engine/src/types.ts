@@ -1,4 +1,4 @@
-import World from './worlds/BasicWorld';
+import BaseWorld from './worlds/BaseWorld';
 import Coordinates from './utils/Coordinates';
 
 export interface Entity {
@@ -10,4 +10,8 @@ export interface Agent extends Entity {
   act: () => void;
   isAlive: () => boolean;
   isActive: () => boolean;
+}
+
+export interface Renderer {
+  render: (w: BaseWorld) => void;
 }
