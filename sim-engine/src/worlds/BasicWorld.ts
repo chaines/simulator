@@ -11,6 +11,7 @@ class World {
   x: number;
   y: number;
   entities: Entity[];
+  center: Coordinates;
   /**
    * Creates a new generic world object
    * @param {number} x - The horizontal size of the world
@@ -19,6 +20,7 @@ class World {
   constructor(x: number, y: number) {
     this.x = x;
     this.y = y;
+    this.center = new Coordinates(x / 2, y / 2);
     this.entities = [];
   }
 
