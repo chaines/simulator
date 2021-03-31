@@ -2,33 +2,20 @@
   import { onMount } from 'svelte';
   import { Writable} from 'svelte/store';
   import * as PIXI from 'pixi.js';
+  
+  import { getStep, options } from './graph';
 
   export let name = 'Graph';
   export let maxGenerations: number;
   export let data: Writable<number[]>;
   export let liveGraph: boolean = true;
   const app = new PIXI.Application({antialias: true});
-  app.renderer.backgroundColor = 0x333333;
-  const graph = new PIXI.Graphics();
-  app.stage = graph;
+  app.renderer.backgroundColor = options.backgroundColor;
   onMount(() => {
-    console.log('hello?!?');
-    document.getElementById('graphRender-' + name).appendChild(app.view);
-    app.resizeTo = document.getElementById('graphRender-' + name);
+    document.getElementById('historicGraphRender-' + name).appendChild(app.view);
+    app.resizeTo = document.getElementById('historicGraphRender-' + name);
     app.resize();
   })
-
-  const getStep = (data: number) => {
-      return data > 5100 ? 1000 
-        : data > 2600 ? 500 
-        : data > 1100 ? 200 
-        : data > 500 ? 100 
-        : data > 250 ? 50 
-        : data > 125 ? 25 
-        : data > 50 ? 10 
-        : data > 10 ? 5 
-        : 1;
-  }
 
   const renderGraph = (d: number[]) => {
     for(let child of app.stage.children) {
@@ -36,7 +23,7 @@
     }
     const newGraph = new PIXI.Graphics();
     newGraph.clear();
-    newGraph.beginFill(0x6CA6CD); 
+    newGraph.beginFill(options.foregroundColor); 
     const width = app.view.width;
     const height = app.view.height;
     const genWidth = width / maxGenerations;
@@ -44,13 +31,12 @@
     const scaleY = height/maxData;
     const xLabelStep = getStep(maxGenerations);
     const yLabelStep = getStep(maxData);
-    console.log(yLabelStep);
     
     let lastBottom = new PIXI.Point(0, height);
     let lastTop = new PIXI.Point(0, height - d[0] * scaleY);
-    newGraph.lineStyle({width: 1, color: 0xcccccc, alpha: 0.25});
+    newGraph.lineStyle(options.lineStyle);
     for(let i = yLabelStep; i < maxData; i += yLabelStep) {
-      let label = new PIXI.Text(i.toString(), { fontFamily: 'Arial', fontSize: 8, fill: 0xffffff});
+      let label = new PIXI.Text(i.toString(), options.labelStyle);
       let labelHeight = height - (i * height / maxData);
       label.anchor.set(0, 1);
       label.position.set(0, labelHeight);
@@ -66,7 +52,7 @@
       let top = new PIXI.Point(x, height - y);
       newGraph.drawPolygon(lastBottom, lastTop, top, bottom);
       if(i % xLabelStep === 0) {
-        let label = new PIXI.Text(i.toString(), { fontFamily: 'Arial', fontSize: 8, fill: 0});
+        let label = new PIXI.Text(i.toString(), options.labelStyle);
         label.anchor.set(.5, 1);
         label.position.set(bottom.x, bottom.y);
         newGraph.addChild(label);
@@ -90,7 +76,7 @@
 
 <main class="graph">
   <h3>{name}</h3>
-  <div id="graphRender-{name}" class="graphDisplay">
+  <div id="historicGraphRender-{name}" class="graphDisplay">
 
   </div>
 </main>
