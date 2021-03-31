@@ -4,20 +4,27 @@
   import { writable } from 'svelte/store';
   import Graph from './components/Graph.svelte';
   export let maxGenerations = 1000;
+  export let visualize = false;
   let world = new GeneticDriftWorld({x: 20, y: 20, foodPerCycle: 35, initialPopSize: 10});
-  let renderer = new PixiRenderer();
-  renderer.addSprites([{className: 'Food', url: '/static/strawberry.png'}, {className: 'HungryAgent', url: '/static/bat.png'}]);
+  let renderer: PixiRenderer | null = null;
+  if(visualize) {
+    renderer = new PixiRenderer();
+    renderer.addSprites([{className: 'Food', url: '/static/strawberry.png'}, {className: 'HungryAgent', url: '/static/bat.png'}]);
+    onMount(() => {
+      document.getElementById('2drender').appendChild(renderer.app.view);
+      renderer.app.resizeTo = document.getElementById('2drender');
+      renderer.app.resize();
+    })
+  }
   onMount(() => {
-    document.getElementById('2drender').appendChild(renderer.app.view);
-    renderer.app.resizeTo = document.getElementById('2drender');
-    renderer.app.resize();
     loop.start();
   })
-  let loop = new BaseLoop({ showTicks: false, fireEvents: true, tickFunc: (f) => window.requestAnimationFrame(f), world, renderer});
+  let loop = new BaseLoop({ showTicks: visualize, fireEvents: true, tickFunc: (f) => window.requestAnimationFrame(f), world, renderer});
   let generations = writable(0);
   let avgSpeed = 0;
   let avgSense = 0;
   let countAgents = 0;
+  let start = Date.now();
   const historicSenseData = writable([3]);
   const historicSpeedData = writable([1]);
   const historicPopulationData = writable([10]);
@@ -25,6 +32,8 @@
     let agents: HungryAgent[] = entities.filter((e) => e instanceof BaseAgent) as HungryAgent[];
     generations.update(x => x +1);
     if($generations === maxGenerations) {
+      let stop = Date.now();
+      console.log(`Time to ${$generations} generations: ${Math.floor((stop - start)/10)/100}s`);
       loop.pause();
     }
     let totalSpeed = 0;
@@ -50,7 +59,9 @@
   Generation {$generations}: {countAgents} organisms<br />
   Avg Speed: {avgSpeed} <br />
   Avg Sense: {avgSense} <br />
+  {#if visualize} 
   <div id='2drender'></div>
+  {/if}
   <Graph name="Speed" maxGenerations={$generations} data={historicSpeedData}/>
   <Graph name="Population" maxGenerations={$generations} data={historicPopulationData} />
   <Graph name="Sense" maxGenerations={$generations} data={historicSenseData} />
