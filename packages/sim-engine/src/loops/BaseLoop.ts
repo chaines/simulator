@@ -39,7 +39,7 @@ class BaseLoop {
     }
     this.tickEvent = new CEvent<Entity>('tick');
     this.cycleEvent = new CEvent<Entity>('cycle');
-    this.cycleLength = cycleLength || 200;
+    this.cycleLength = cycleLength || 60;
     this.currStep = 0;
     this.loopFunc = this.loop.bind(this);
     this.renderer = renderer || null;
@@ -53,9 +53,7 @@ class BaseLoop {
     for (const agent of this.agents) {
       agent.act(cycleTime);
     }
-    if (this.renderer !== null) {
-      this.renderer.render(this.world);
-    }
+    this.renderer?.render(this.world);
     if (this.fireEvents) {
       this.tickEvent.fire(this.world.entities);
     }

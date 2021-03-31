@@ -66,11 +66,14 @@ class HungryAgent extends BaseAgent {
 
     if (this.currStatus === HungryAgent.RETURNING_HOME) {
       const distanceToHome = this.coords.distanceTo(this.homeCoords);
-      if (distanceToHome <= this.speed) {
+      if (distanceToHome <= this.speed / 2) {
         this.currStatus = HungryAgent.WAITING;
         this.currDirection = this.coords.vectorTo(this.homeCoords);
       } else {
-        this.currDirection = this.coords.vectorTo(this.homeCoords).normalize().multiply(this.speed);
+        this.currDirection = this.coords
+          .vectorTo(this.homeCoords)
+          .normalize()
+          .multiply(this.speed / 2);
       }
       this.walk();
       return;
@@ -92,10 +95,10 @@ class HungryAgent extends BaseAgent {
       }
       if (closestFood !== undefined) {
         const foodVector = this.coords.vectorTo(closestFood.coords);
-        if (foodVector.magnitude() < this.speed) {
+        if (foodVector.magnitude() < this.speed / 2) {
           this.currDirection = foodVector;
         } else {
-          this.currDirection = foodVector.normalize().multiply(this.speed);
+          this.currDirection = foodVector.normalize().multiply(this.speed / 2);
         }
       } else {
         do {
@@ -112,6 +115,9 @@ class HungryAgent extends BaseAgent {
   }
 
   eat(food: Food) {
+    if (!this.world?.entities.includes(food)) {
+      console.log('Too slow');
+    }
     this.energy += HungryAgent.BASE_ENERGY;
     this.food++;
     this.world?.removeEntity(food);
@@ -119,7 +125,7 @@ class HungryAgent extends BaseAgent {
 
   walk() {
     this.coords = this.coords.add(this.currDirection);
-    this.energy -= this.speed * this.speed * 2 + this.detectionRange / 3;
+    this.energy -= this.speed * this.speed * 2 + this.detectionRange * 2;
     if (this.energy <= 0) {
       this.nextStatus = HungryAgent.DEAD;
     }
@@ -128,7 +134,10 @@ class HungryAgent extends BaseAgent {
   updateStatus(cycleTime: number) {
     if ((this.food >= 2 || (this.food >= 1 && cycleTime >= 0.5)) && this.currStatus === HungryAgent.FORAGING) {
       this.currStatus = HungryAgent.RETURNING_HOME;
-      this.currDirection = this.coords.vectorTo(this.homeCoords).normalize().multiply(this.speed);
+      this.currDirection = this.coords
+        .vectorTo(this.homeCoords)
+        .normalize()
+        .multiply(this.speed / 2);
     }
   }
 
@@ -146,7 +155,10 @@ class HungryAgent extends BaseAgent {
     }
     this.energy = HungryAgent.BASE_ENERGY;
     this.food = 0;
-    this.currDirection = this.coords.vectorTo(this.world.center).normalize().multiply(this.speed);
+    this.currDirection = this.coords
+      .vectorTo(this.world.center)
+      .normalize()
+      .multiply(this.speed / 2);
   }
 
   spawnChild(): HungryAgent {
