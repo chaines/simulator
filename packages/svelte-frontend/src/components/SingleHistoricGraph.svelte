@@ -6,9 +6,11 @@
   import { getStep, options } from './graph';
 
   export let name = 'Graph';
-  export let maxGenerations: number;
   export let data: Writable<number[]>;
   export let liveGraph: boolean = true;
+  export let maxY: number;
+  export let maxX: number;
+
   const app = new PIXI.Application({antialias: true});
   app.renderer.backgroundColor = options.backgroundColor;
   onMount(() => {
@@ -17,56 +19,64 @@
     app.resize();
   })
 
-  const renderGraph = (d: number[]) => {
-    for(let child of app.stage.children) {
-      child.destroy();
-    }
-    const newGraph = new PIXI.Graphics();
-    newGraph.clear();
-    newGraph.beginFill(options.foregroundColor); 
+  const drawLabels = () => {
+    const stage = new PIXI.Graphics();
+    const xLabelStep = getStep(maxX);
+    const yLabelStep = getStep(maxY);
     const width = app.view.width;
     const height = app.view.height;
-    const genWidth = width / maxGenerations;
-    const maxData = Math.ceil(d.reduce((l, c) => l > c ? l : c, 0) * 1.2);
-    const scaleY = height/maxData;
-    const xLabelStep = getStep(maxGenerations);
-    const yLabelStep = getStep(maxData);
-    
-    let lastBottom = new PIXI.Point(0, height);
-    let lastTop = new PIXI.Point(0, height - d[0] * scaleY);
-    newGraph.lineStyle(options.lineStyle);
-    for(let i = yLabelStep; i < maxData; i += yLabelStep) {
-      let label = new PIXI.Text(i.toString(), options.labelStyle);
-      let labelHeight = height - (i * height / maxData);
-      label.anchor.set(0, 1);
-      label.position.set(0, labelHeight);
-      newGraph.addChild(label);
-      newGraph.moveTo(0, labelHeight);
-      newGraph.lineTo(width, labelHeight);
-    }
-    newGraph.lineStyle({width: 0});
-    for(let i = 1; i < d.length; i++) {
-      let x = i * genWidth;
-      let y = d[i] * scaleY;
-      let bottom = new PIXI.Point(x, height);
-      let top = new PIXI.Point(x, height - y);
-      newGraph.drawPolygon(lastBottom, lastTop, top, bottom);
-      if(i % xLabelStep === 0) {
-        let label = new PIXI.Text(i.toString(), options.labelStyle);
-        label.anchor.set(.5, 1);
-        label.position.set(bottom.x, bottom.y);
-        newGraph.addChild(label);
-      }
-      lastBottom = bottom;
-      lastTop = top;
-    }
+    const xScale = width / maxX;
+    const yScale = height / maxY;
 
-    app.stage = newGraph;
+    stage.lineStyle(options.lineStyle);
+    
+    for(let i = yLabelStep; i < maxY; i += yLabelStep) {
+      let lineHeight = height - (i * yScale);
+      let label = new PIXI.Text(i.toString(), options.labelStyle);
+      label.anchor.set(0, 1);
+      label.position.set(0, lineHeight);
+      stage.addChild(label);
+      stage.moveTo(0, lineHeight);
+      stage.lineTo(width, lineHeight);
+    }
+    for(let i = xLabelStep; i < maxX; i += xLabelStep) {
+      let labelLeft = i * xScale;
+      let label = new PIXI.Text(i.toString(), options.labelStyle);
+      label.anchor.set(0.5, 1);
+      label.position.set(labelLeft, height);
+      stage.addChild(label);
+    }
+    stage.lineStyle({width: 0});
+    app.stage = stage;
+    return stage;
+  }
+
+  const redrawAll = (d: number[]) => {
+    const stage = drawLabels();
+    const height = app.view.height;
+    const width = app.view.width;
+    const scaleX = width/maxX;
+    const scaleY = height/maxY;
+
+    const polygonPoints = [ new PIXI.Point(0, height)] 
+    for (let i = 0; i < d.length; i++) {
+      polygonPoints.push(new PIXI.Point(i * scaleX, height - (d[i] * scaleY)));
+    }
+    polygonPoints.push(new PIXI.Point((d.length - 1) * scaleX, height));
+    stage.beginFill(options.foregroundColor);
+    stage.drawPolygon(polygonPoints);
+  }
+
+  const renderGraph = (d: number[]) => {
+    const maxData = Math.ceil(d.reduce((l, c) => l > c ? l : c, 0) * 1.2);
+    maxY = Math.max(maxY, maxData);
+    maxX = Math.max(maxX, d.length - 1);
+    redrawAll(d);
     app.render();
   }
 
   data.subscribe((d) => {
-    if(liveGraph || d.length >= maxGenerations) {
+    if(liveGraph || d.length >= maxX) {
       renderGraph(d);
     }
   })
