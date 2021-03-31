@@ -38,12 +38,12 @@ class HungryAgent extends BaseAgent {
     super(coords, world, 'Hungry');
     this.energy = HungryAgent.BASE_ENERGY;
     this.food = 0;
-    this.size = size || 1;
-    this.speed = speed || 1;
-    this.detectionRange = detectionRange || 3;
+    this.size = size ?? 1;
+    this.speed = speed ?? 1;
+    this.detectionRange = detectionRange ?? 3;
     this.nextStatus = HungryAgent.ALIVE;
     this.homeCoords = new Coordinates(coords.x, coords.y);
-    this.mutationRate = mutationRate || 1;
+    this.mutationRate = mutationRate ?? 1;
     this.currStatus = HungryAgent.WAITING;
     if (world !== undefined) {
       this.currDirection = this.coords.vectorTo(world.center).normalize();
@@ -126,7 +126,7 @@ class HungryAgent extends BaseAgent {
 
   walk() {
     this.coords = this.coords.add(this.currDirection);
-    this.energy -= this.speed * this.speed * 2 + this.detectionRange * 2;
+    this.energy -= this.speed * this.speed * this.speed + this.detectionRange;
     if (this.energy <= 0) {
       this.nextStatus = HungryAgent.DEAD;
     }
@@ -165,9 +165,9 @@ class HungryAgent extends BaseAgent {
   spawnChild(): HungryAgent {
     this.checkWorld();
     const spawnCoords = (this.world as BaseWorld).generateSpawnPoint();
-    const newSpeed = this.speed + (Math.random() - 0.5) * (this.mutationRate / 4);
+    const newSpeed = Math.max(0, this.speed + (Math.random() - 0.5) * (this.mutationRate / 4));
     const newSize = this.size + (Math.random() - 0.5) * (this.mutationRate / 8);
-    const newDetectionRange = this.detectionRange + (Math.random() - 0.5) * (this.mutationRate / 3);
+    const newDetectionRange = Math.max(0, this.detectionRange + (Math.random() - 0.5) * (this.mutationRate / 3));
     return new HungryAgent(
       {
         coords: spawnCoords,

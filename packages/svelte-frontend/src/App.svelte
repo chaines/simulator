@@ -1,11 +1,12 @@
 <script lang="ts">
   import { BaseLoop, GeneticDriftWorld, BaseAgent, HungryAgent, PixiRenderer } from '@simulation-engine';
   import { onMount } from 'svelte';
-  import { writable } from 'svelte/store';
-  import Graph from './components/Graph.svelte';
+  import { writable, Writable } from 'svelte/store';
+  import HistoricGraph from './components/SingleHistoricGraph.svelte';
   export let maxGenerations = 1000;
   export let visualize = false;
-  let world = new GeneticDriftWorld({x: 20, y: 20, foodPerCycle: 35, initialPopSize: 10});
+  export let running: Writable<boolean> = writable(true);
+  let world = new GeneticDriftWorld({x: 80, y: 60, foodPerCycle: 140, initialPopSize: 50, initialPopSettings: { mutationRate: 1, detectionRange: 3 }});
   let renderer: PixiRenderer | null = null;
   if(visualize) {
     renderer = new PixiRenderer();
@@ -24,45 +25,63 @@
   let avgSpeed = 0;
   let avgSense = 0;
   let countAgents = 0;
+
   let start = Date.now();
   const historicSenseData = writable([3]);
   const historicSpeedData = writable([1]);
-  const historicPopulationData = writable([10]);
+  const historicPopulationData = writable([25]);
   loop.addEventListener('cycle', (entities) => {
+    const currSpeeds: number[] = [];
+    const currSenses: number[] = [];
     let agents: HungryAgent[] = entities.filter((e) => e instanceof BaseAgent) as HungryAgent[];
     generations.update(x => x +1);
     if($generations === maxGenerations) {
       let stop = Date.now();
       console.log(`Time to ${$generations} generations: ${Math.floor((stop - start)/10)/100}s`);
-      loop.pause();
+      running.set(false);
     }
     let totalSpeed = 0;
     let totalSense = 0;
     for(const a of agents) {
-      totalSpeed += a.speed;
+      currSpeeds.push(a.speed * 10);
+      currSenses.push(a.detectionRange);
+      totalSpeed += a.speed * 10;
       totalSense += a.detectionRange;
     }
     countAgents = agents.length;
-    avgSense = totalSense / countAgents;
-    avgSpeed = totalSpeed / countAgents;
+    if(countAgents === 0) {
+      avgSense = 0;
+      avgSpeed = 0;
+    } else {
+      avgSense = totalSense / countAgents;
+      avgSpeed = totalSpeed / countAgents;
+    }
     historicSenseData.update(x => [...x, avgSense])
     historicSpeedData.update(x => [...x, avgSpeed]);
     historicPopulationData.update(x => [...x, countAgents]);
   })
-  let name = 'wold';
+
+  running.subscribe((val) => {
+    if(!val) {
+      loop.pause();
+    } else {
+      loop.resume();
+    }
+  })
 
 
 </script>
 
 <main>
-  <h1>Hello {name}</h1>
   Generation {$generations}: {countAgents} organisms<br />
   Avg Speed: {avgSpeed} <br />
   Avg Sense: {avgSense} <br />
   {#if visualize} 
   <div id='2drender'></div>
   {/if}
-  <Graph name="Speed" maxGenerations={$generations} data={historicSpeedData}/>
-  <Graph name="Population" maxGenerations={$generations} data={historicPopulationData} />
-  <Graph name="Sense" maxGenerations={$generations} data={historicSenseData} />
+  <HistoricGraph name="Speed" maxGenerations={$generations} data={historicSpeedData}/>
+  <HistoricGraph name="Sense" maxGenerations={maxGenerations} data={historicSenseData} /> 
+  <HistoricGraph name="Population" maxGenerations={maxGenerations} data={historicPopulationData}/>
+  <!-- 
+  -->
 </main>

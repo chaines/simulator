@@ -23,7 +23,7 @@ class BaseLoop {
   private cycleLength: number;
   private currStep: number;
   private renderer: Renderer | null;
-  private showTicks: boolean;
+  private _showTicks: boolean;
   private static NO_WORLD_ERROR = 'No world assigned to loop, cannot proceed';
 
   constructor({ fireEvents, tickFunc, world, cycleLength, renderer, showTicks }: BaseLoopOptions) {
@@ -43,7 +43,7 @@ class BaseLoop {
     this.cycleLength = cycleLength || 60;
     this.currStep = 0;
     this.renderer = renderer || null;
-    this.showTicks = showTicks ?? true;
+    this._showTicks = showTicks ?? true;
   }
 
   private loop() {
@@ -153,6 +153,10 @@ class BaseLoop {
     }
   }
 
+  public showTicks(val: boolean) {
+    this._showTicks = val;
+  }
+
   public pause() {
     this.running = false;
   }
@@ -165,7 +169,7 @@ class BaseLoop {
     if (this.world !== null) {
       if (!this.running) {
         this.running = true;
-        if (this.showTicks) {
+        if (this._showTicks) {
           this.loop();
         } else {
           this.loopWithoutTick();

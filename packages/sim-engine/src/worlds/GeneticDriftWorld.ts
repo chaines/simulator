@@ -27,10 +27,10 @@ class GeneticDriftWorld extends BaseWorld {
     this.foodPerCycle = foodPerCycle || 20;
     this.initialPopSize = initialPopSize || 10;
     this.initialPopSettings = {
-      size: initialPopSettings?.size || 1,
-      speed: initialPopSettings?.speed || 1,
-      detectionRange: initialPopSettings?.detectionRange || 3,
-      mutationRate: initialPopSettings?.mutationRate || 1,
+      size: initialPopSettings?.size ?? 1,
+      speed: initialPopSettings?.speed ?? 1,
+      detectionRange: initialPopSettings?.detectionRange ?? 3,
+      mutationRate: initialPopSettings?.mutationRate ?? 1,
     };
     if (initialize) {
       this.init();
