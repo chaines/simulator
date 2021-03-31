@@ -7,6 +7,8 @@
  */
 const useBabel = true;
 
+const hotReload = false;
+
 /**
  * This option controls whether or not development builds should be compiled with Babel. Change this to `true` if you
  * intend to test with older browsers during development, but it could significantly impact your build speed.
@@ -78,7 +80,7 @@ const config: Configuration = {
               dev: isDevelopment,
             },
             emitCss: isProduction,
-            hotReload: isDevelopment,
+            hotReload: hotReload && isDevelopment,
             hotOptions: {
               // List of options and defaults: https://www.npmjs.com/package/svelte-loader-hot#usage
               noPreserveState: false,

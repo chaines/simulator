@@ -121,6 +121,10 @@ class HungryAgent extends BaseAgent {
     this.energy += HungryAgent.BASE_ENERGY;
     this.food++;
     this.world?.removeEntity(food);
+    this.currDirection = this.coords
+      .vectorTo((this.world as BaseWorld).center)
+      .normalize()
+      .multiply(this.speed / 2);
   }
 
   walk() {

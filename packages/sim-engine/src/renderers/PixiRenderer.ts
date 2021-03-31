@@ -10,6 +10,7 @@ class PixiRenderer implements Renderer {
   };
   constructor() {
     this.app = new PIXI.Application();
+    this.app.renderer.backgroundColor = 0xd0d0d0;
     this.sprites = {};
   }
   render(world: BaseWorld) {

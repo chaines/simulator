@@ -76,7 +76,8 @@ class BaseLoop {
         this.cycleEvent.fire(this.world.entities);
       }
     }
-    if (this.running) {
+    // We want to complete the 'cycle' before stopping.
+    if (this.running || this.currStep) {
       this.tickFunc(this.loopFunc);
     }
   }
