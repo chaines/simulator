@@ -9,6 +9,7 @@ export type BaseLoopOptions = {
   world?: BaseWorld;
   cycleLength?: number;
   renderer?: Renderer;
+  showTicks?: boolean;
 };
 
 class BaseLoop {
@@ -22,10 +23,10 @@ class BaseLoop {
   private cycleLength: number;
   private currStep: number;
   private renderer: Renderer | null;
-  private loopFunc: (this: BaseLoop) => void;
+  private showTicks: boolean;
   private static NO_WORLD_ERROR = 'No world assigned to loop, cannot proceed';
 
-  constructor({ fireEvents, tickFunc, world, cycleLength, renderer }: BaseLoopOptions) {
+  constructor({ fireEvents, tickFunc, world, cycleLength, renderer, showTicks }: BaseLoopOptions) {
     this.fireEvents = fireEvents || false;
     this.tickFunc = tickFunc === undefined ? setTimeout : tickFunc;
     this.world = world || null;
@@ -41,8 +42,8 @@ class BaseLoop {
     this.cycleEvent = new CEvent<Entity>('cycle');
     this.cycleLength = cycleLength || 60;
     this.currStep = 0;
-    this.loopFunc = this.loop.bind(this);
     this.renderer = renderer || null;
+    this.showTicks = showTicks ?? true;
   }
 
   private loop() {
@@ -53,7 +54,9 @@ class BaseLoop {
     for (const agent of this.agents) {
       agent.act(cycleTime);
     }
-    this.renderer?.render(this.world);
+    if (this.renderer !== null) {
+      this.renderer.render(this.world);
+    }
     if (this.fireEvents) {
       this.tickEvent.fire(this.world.entities);
     }
@@ -78,7 +81,38 @@ class BaseLoop {
     }
     // We want to complete the 'cycle' before stopping.
     if (this.running || this.currStep) {
-      this.tickFunc(this.loopFunc);
+      this.tickFunc(this.loop.bind(this));
+    }
+  }
+
+  private loopWithoutTick() {
+    if (this.world === null) {
+      throw new Error(BaseLoop.NO_WORLD_ERROR);
+    }
+    while (this.currStep !== this.cycleLength) {
+      const cycleTime = this.currStep / this.cycleLength;
+      for (const agent of this.agents) {
+        agent.act(cycleTime);
+      }
+      this.currStep++;
+    }
+    this.currStep = 0;
+    this.world.cycle();
+    const newAgents: BaseAgent[] = [];
+    for (let e of this.world.entities) {
+      if (e instanceof BaseAgent) {
+        newAgents.push(e);
+      }
+    }
+    this.agents = newAgents;
+    if (this.agents.length === 0) {
+      this.running = false;
+    }
+    if (this.fireEvents) {
+      this.cycleEvent.fire(this.world.entities);
+    }
+    if (this.running) {
+      this.tickFunc(this.loopWithoutTick.bind(this));
     }
   }
 
@@ -131,7 +165,11 @@ class BaseLoop {
     if (this.world !== null) {
       if (!this.running) {
         this.running = true;
-        this.loopFunc();
+        if (this.showTicks) {
+          this.loop();
+        } else {
+          this.loopWithoutTick();
+        }
       }
     } else {
       throw new Error(BaseLoop.NO_WORLD_ERROR);

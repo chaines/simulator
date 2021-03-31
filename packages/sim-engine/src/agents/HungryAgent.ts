@@ -115,9 +115,6 @@ class HungryAgent extends BaseAgent {
   }
 
   eat(food: Food) {
-    if (!this.world?.entities.includes(food)) {
-      console.log('Too slow');
-    }
     this.energy += HungryAgent.BASE_ENERGY;
     this.food++;
     this.world?.removeEntity(food);
