@@ -87,9 +87,15 @@
   {#if visualize} 
   <div id='2drender'></div>
   {/if}
+<<<<<<< Updated upstream
     <HistoricGraph name="Sense"  data={historicSenseData} maxY={10} maxX={maxGenerations} /> 
     <HistoricGraph name="Population" maxX={maxGenerations} data={historicPopulationData} maxY={150}/>
     <HistoricGraph name="Speed" maxX={maxGenerations} data={historicSpeedData} maxY={3} />
+=======
+    <HistoricGraph name="Sense"  data={historicSenseData} maxX={maxGenerations + 1} maxY={10}/> 
+    <HistoricGraph name="Population" data={historicPopulationData} maxX={maxGenerations + 1} maxY={150}/>
+    <HistoricGraph name="Speed" data={historicSpeedData} maxX={maxGenerations + 1} maxY={3} />
+>>>>>>> Stashed changes
   <!-- 
   -->
 </main>
