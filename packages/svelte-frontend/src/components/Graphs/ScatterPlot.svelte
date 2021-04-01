@@ -17,6 +17,7 @@
     document.getElementById('scatterplot-' + name).appendChild(app.view);
     app.resizeTo = document.getElementById('scatterplot-' + name);
     app.resize();
+    data.subscribe(d => {if(d[0] && d[0][0] && d[0][1]) renderGraph(d)});
   });
 
   const renderGraph = (data: [number, number][]) => {
@@ -80,7 +81,7 @@
 
   }
 
-  data.subscribe(d => renderGraph(d));
+  
 
 </script>
 

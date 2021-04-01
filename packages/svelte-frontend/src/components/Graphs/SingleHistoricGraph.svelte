@@ -1,20 +1,25 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { Writable} from 'svelte/store';
+  import { Readable} from 'svelte/store';
+  import { maxGenerations } from '../../stores';
   import * as PIXI from 'pixi.js';
   
   import { getStep, options } from './graph';
 
   export let name = 'Graph';
-  export let data: Writable<number[]>;
+  export let data: Readable<number[]>;
   export let liveGraph: boolean = true;
   export let maxY: number = 0;
   export let maxX: number = 0;
   export let done = !liveGraph;
 
   // STATE
-  const foreground = new PIXI.Application({antialias: true, transparent: true});
+  const foreground = new PIXI.Application({antialias: true, backgroundAlpha: 0});
   const background = new PIXI.Application({antialias: true, backgroundColor: options.backgroundColor});
+
+  // Needed to allow users to scroll the webpage if the graph takes up the whole page (April 2021)
+  foreground.renderer.plugins.interaction.autoPreventDefault = false;
+  foreground.renderer.view.style.touchAction = 'auto';
   foreground.stage = new PIXI.Graphics();
   background.stage = new PIXI.Graphics();
   let drawn = 0;
@@ -22,15 +27,33 @@
 
   // SETUP
   onMount(() => {
-    const ele = document.getElementById('historicGraphRender-' + name);
-    background.view.classList.add('absolute');
-    foreground.view.classList.add('absolute');
-    ele.appendChild(background.view);
-    ele.appendChild(foreground.view);
-    background.resizeTo = ele;
-    foreground.resizeTo = ele;
-    background.resize();
-    foreground.render();
+    setTimeout(() => {
+      const ele = document.getElementById('historicGraphRender-' + name);
+      background.view.classList.add('absolute');
+      foreground.view.classList.add('absolute');
+      ele.appendChild(background.view);
+      ele.appendChild(foreground.view);
+      background.resizeTo = ele;
+      foreground.resizeTo = ele;
+      console.log(name, 'mounted');
+      console.log(`${name} background height: ${background.view.height}`);
+      background.resize();
+      foreground.resize();
+      data.subscribe((d) => {
+        if(d.length === 1) {
+          drawn = 0;
+          maxY = 0;
+          maxX = $maxGenerations + 1;
+        }
+        if((liveGraph && d.length > drawn + 1) || (done && !liveGraph)) {
+          if(done) {
+            maxX = d.length;
+          }
+          renderGraph(d);
+        }
+
+      })
+    })
   })
 
 
@@ -121,7 +144,7 @@
       doRedraw = true;
       maxX = Math.floor(d.length * 1.2);
     }
-    if(doRedraw || (drawn === 0 && d.length >= 10) || (done && !liveGraph)) {
+    if(doRedraw || (drawn === 0 && d.length >= 10) || (done)) {
       drawLabels();
       redrawAll(d);
       drawn = d.length - 1;
@@ -133,26 +156,14 @@
     foreground.render();
   }
 
-  data.subscribe((d) => {
-    /**
-     * Simple workaround to ensure props have time to update before rendering
-    */
-    setTimeout(() => {
-      if((liveGraph && d.length > drawn + 1) || (done && !liveGraph)) {
-        if(done) {
-          maxX = d.length;
-        }
-        renderGraph(d);
-      }
-    })
-  })
+
 
 
 </script>
 
-<main class="graph">
+<main class="w-full p-2">
   <h3>{name}</h3>
-  <div id="historicGraphRender-{name}" class="w-screen">
+  <div id="historicGraphRender-{name}" class="h-80 w-full">
 
   </div>
 </main>

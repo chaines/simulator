@@ -29,7 +29,7 @@ export const getStep = (data: number) => {
 };
 
 export const options = {
-  backgroundColor: 0x333333,
+  backgroundColor: 0x1f2937,
   foregroundColor: 0x4c86ad,
   lineStyle: {
     width: 1,
@@ -46,7 +46,7 @@ export const options = {
   },
   labelStyle: {
     fontFamily: 'Arial',
-    fontSize: 8,
+    fontSize: 10,
     fill: 0xf0f0f0,
   },
 };

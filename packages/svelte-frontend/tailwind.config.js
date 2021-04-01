@@ -1,6 +1,6 @@
 module.exports = {
   future: {},
-  purge: [],
+  purge: ['./src/**/*.css', './src/**/*.svelte'],
   theme: {
     extend: {},
   },

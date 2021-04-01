@@ -34,10 +34,10 @@ class PixiRenderer implements Renderer {
   }
 
   addSprites(sprites: TextureLoader[]) {
-    PIXI.Loader.shared.add(sprites.map((s) => s.url)).load(() => {
+    this.app.loader.add(sprites.map((s) => s.url)).load(() => {
       console.log('sprites loaded');
       for (let s of sprites) {
-        this.sprites[s.className] = PIXI.Loader.shared.resources[s.url].texture as PIXI.Texture;
+        this.sprites[s.className] = this.app.loader.resources[s.url].texture as PIXI.Texture;
       }
     });
   }

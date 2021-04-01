@@ -9,7 +9,7 @@ export type BaseLoopOptions = {
   world?: BaseWorld;
   cycleLength?: number;
   renderer?: Renderer;
-  showTicks?: boolean;
+  pauseOnTicks?: boolean;
 };
 
 class BaseLoop {
@@ -20,13 +20,14 @@ class BaseLoop {
   private running: boolean = false;
   private tickEvent: CEvent<Entity>;
   private cycleEvent: CEvent<Entity>;
+  private endEvent: CEvent<Entity>;
   private cycleLength: number;
   private currStep: number;
   private renderer: Renderer | null;
-  private _showTicks: boolean;
+  private _pauseOnTicks: boolean;
   private static NO_WORLD_ERROR = 'No world assigned to loop, cannot proceed';
 
-  constructor({ fireEvents, tickFunc, world, cycleLength, renderer, showTicks }: BaseLoopOptions) {
+  constructor({ fireEvents, tickFunc, world, cycleLength, renderer, pauseOnTicks }: BaseLoopOptions) {
     this.fireEvents = fireEvents || false;
     this.tickFunc = tickFunc === undefined ? setTimeout : tickFunc;
     this.world = world || null;
@@ -40,10 +41,11 @@ class BaseLoop {
     }
     this.tickEvent = new CEvent<Entity>('tick');
     this.cycleEvent = new CEvent<Entity>('cycle');
+    this.endEvent = new CEvent<Entity>('end');
     this.cycleLength = cycleLength || 60;
     this.currStep = 0;
     this.renderer = renderer || null;
-    this._showTicks = showTicks ?? true;
+    this._pauseOnTicks = pauseOnTicks ?? true;
   }
 
   private loop() {
@@ -81,7 +83,11 @@ class BaseLoop {
     }
     // We want to complete the 'cycle' before stopping.
     if (this.running || this.currStep) {
-      this.tickFunc(this.loop.bind(this));
+      if (this._pauseOnTicks) {
+        this.tickFunc(this.loop.bind(this));
+      } else {
+        this.tickFunc(this.loopWithoutTick.bind(this));
+      }
     }
   }
 
@@ -111,8 +117,14 @@ class BaseLoop {
     if (this.fireEvents) {
       this.cycleEvent.fire(this.world.entities);
     }
-    if (this.running) {
-      this.tickFunc(this.loopWithoutTick.bind(this));
+    if (this.running || this.currStep) {
+      if (this._pauseOnTicks) {
+        this.tickFunc(this.loop.bind(this));
+      } else {
+        this.tickFunc(this.loopWithoutTick.bind(this));
+      }
+    } else if (this.fireEvents) {
+      this.endEvent.fire(this.world.entities);
     }
   }
 
@@ -150,11 +162,14 @@ class BaseLoop {
       case 'cycle':
         this.cycleEvent.registerCallback(listener);
         break;
+      case 'end':
+        this.endEvent.registerCallback(listener);
+        break;
     }
   }
 
-  public showTicks(val: boolean) {
-    this._showTicks = val;
+  public pauseOnTicks(val: boolean) {
+    this._pauseOnTicks = val;
   }
 
   public pause() {
@@ -169,7 +184,7 @@ class BaseLoop {
     if (this.world !== null) {
       if (!this.running) {
         this.running = true;
-        if (this._showTicks) {
+        if (this._pauseOnTicks) {
           this.loop();
         } else {
           this.loopWithoutTick();
@@ -178,6 +193,10 @@ class BaseLoop {
     } else {
       throw new Error(BaseLoop.NO_WORLD_ERROR);
     }
+  }
+
+  public setRenderer(r: Renderer) {
+    this.renderer = r;
   }
 }
 
