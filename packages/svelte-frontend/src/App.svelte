@@ -87,9 +87,9 @@
   {#if visualize} 
   <div id='2drender'></div>
   {/if}
-    <HistoricGraph name="Sense"  data={historicSenseData} maxX={maxGenerations + 1} maxY={10} height={230}/> 
-    <HistoricGraph name="Population" data={historicPopulationData} maxX={maxGenerations + 1} maxY={100} height={230}/>
-    <HistoricGraph name="Speed" data={historicSpeedData} maxX={maxGenerations + 1} maxY={3} height={230}/>
+    <HistoricGraph name="Sense"  data={historicSenseData} maxX={maxGenerations + 1} maxY={10} height={230} done={!$running}/> 
+    <HistoricGraph name="Population" data={historicPopulationData} maxX={maxGenerations + 1} maxY={105} height={230} done={!$running}/>
+    <HistoricGraph name="Speed" data={historicSpeedData} maxX={10} maxY={3} height={230} liveGraph={false} done={!$running}/>
   <!-- 
   -->
 </main>

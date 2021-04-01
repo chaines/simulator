@@ -11,6 +11,7 @@
   export let maxY: number;
   export let maxX: number;
   export let height = 600;
+  export let done = !liveGraph;
 
   // STATE
   const app = new PIXI.Application({antialias: true, height});
@@ -29,6 +30,7 @@
 
 
   const drawLabels = () => {
+    app.stage.destroy();
     const stage = new PIXI.Graphics();
     app.stage = stage;
     const xLabelStep = getStep(maxX);
@@ -37,18 +39,31 @@
     const height = app.view.height;
     const xScale = width / maxX;
     const yScale = height / maxY;
-
-    stage.lineStyle(options.lineStyle);
     
+
+    stage.beginFill(options.lineFill, options.lineAlpha);
     for(let i = yLabelStep; i < maxY; i += yLabelStep) {
       let lineHeight = height - (i * yScale);
       let label = new PIXI.Text(i.toString(), options.labelStyle);
       label.anchor.set(0, 1);
       label.position.set(0, lineHeight);
       stage.addChild(label);
-      stage.moveTo(0, lineHeight);
-      stage.lineTo(width, lineHeight);
+      /** Drawing these lines and then trying to draw OVER them in a different render cycle is 
+       * currently causing an issue with vertical bars appearing in the graph. I don't have any 
+       * *more* time to look into this right now, so the horizontal lines aren't an option in 
+       * liveGraph format. However, as a temporary workaround, the 'done' prop can also be 
+       * passed when in 'liveGraph' mode, which will redraw the entire graph once when no more data
+       * will be passed, allowing these lines to be drawn still. 
+       * 
+       * However, do *NOT* leave done set to true at all times, for performance reasons.
+       * (Cody Haines, March 2021)
+      */
+     if(done) {
+       stage.drawRect(0, lineHeight, width, 1);
+     }
     }
+    stage.endFill();
+    stage.moveTo(0,0);
     for(let i = xLabelStep; i < maxX; i += xLabelStep) {
       let labelLeft = i * xScale;
       let label = new PIXI.Text(i.toString(), options.labelStyle);
@@ -56,24 +71,23 @@
       label.position.set(labelLeft, height);
       stage.addChild(label);
     }
-    stage.lineStyle({width: 0});
     return stage;
   }
 
   const redrawAll = (d: number[]) => {
-    const stage = drawLabels();
+    //const stage = drawLabels();
+    const stage = app.stage as PIXI.Graphics;
     const height = app.view.height;
-    console.log(name, height);
     const width = app.view.width;
     const scaleX = width/maxX;
     const scaleY = height/maxY;
 
     const polygonPoints = [ new PIXI.Point(0, height)] 
+    stage.beginFill(options.foregroundColor);
     for (let i = 0; i < d.length; i++) {
       polygonPoints.push(new PIXI.Point(i * scaleX, height - (d[i] * scaleY)));
     }
     polygonPoints.push(new PIXI.Point((d.length - 1) * scaleX, height));
-    stage.beginFill(options.foregroundColor);
     stage.drawPolygon(polygonPoints);
   }
 
@@ -83,14 +97,17 @@
     const width = app.view.width;
     const scaleX = width/maxX;
     const scaleY = height/maxY;
+    
+
     stage.lineStyle({width: 0});
+    stage.beginFill(options.foregroundColor);
 
     const polygonPoints = [ new PIXI.Point(drawn * scaleX, height), new PIXI.Point(drawn * scaleX, height - (d[drawn] * scaleY))];
     for (let i = drawn + 1; i < d.length; i++) {
+
       polygonPoints.push(new PIXI.Point(i * scaleX, height - (d[i] * scaleY)));
     }
     polygonPoints.push(new PIXI.Point((d.length - 1) * scaleX, height));
-    stage.beginFill(options.foregroundColor);
     stage.drawPolygon(polygonPoints);
   }
 
@@ -105,22 +122,26 @@
       doRedraw = true;
       maxX = Math.floor(d.length * 1.2);
     }
-    if(doRedraw || drawn === 0) {
+    if(doRedraw || (drawn === 0 && d.length >= 10) || done) {
+      drawLabels();
       redrawAll(d);
-    } else {
+      drawn = d.length - 1;
+    } else if (d.length >= 10){
       incrementalDraw(d);
+      drawn = d.length - 1;
     }
-    if(d.length >= maxX) {
-      console.log(name, app.view.height);
-    }
-    drawn = d.length - 1;
     app.render();
   }
 
   data.subscribe((d) => {
-    if((liveGraph && d.length > drawn + 1) || d.length >= maxX) {
-      renderGraph(d);
-    }
+    /**
+     * Simple workaround to ensure props have time to update before rendering
+    */
+    setTimeout(() => {
+      if((liveGraph && d.length > drawn + 1) || done) {
+        renderGraph(d);
+      }
+    })
   })
 
 

@@ -36,6 +36,13 @@ export const options = {
     color: 0xcccccc,
     alpha: 0.25,
   },
+  lineFill: 0xcccccc,
+  lineAlpha: 0.25,
+  clearLineStyle: {
+    width: 0,
+    color: 0,
+    alpha: 0,
+  },
   labelStyle: {
     fontFamily: 'Arial',
     fontSize: 8,
