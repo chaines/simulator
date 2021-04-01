@@ -38,6 +38,7 @@ export const options = {
   },
   lineFill: 0xcccccc,
   lineAlpha: 0.25,
+  foregroundAlpha: 0.75,
   clearLineStyle: {
     width: 0,
     color: 0,

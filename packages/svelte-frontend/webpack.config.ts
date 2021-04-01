@@ -36,6 +36,7 @@ import Webpack from 'webpack';
 import WebpackDev from 'webpack-dev-server';
 import SveltePreprocess from 'svelte-preprocess';
 import Autoprefixer from 'autoprefixer';
+import Tailwind from 'tailwindcss';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 
 import { CleanWebpackPlugin } from 'clean-webpack-plugin';
@@ -79,7 +80,7 @@ const config: Configuration = {
               // Dev mode must be enabled for HMR to work!
               dev: isDevelopment,
             },
-            emitCss: isProduction,
+            emitCss: true,
             hotReload: hotReload && isDevelopment,
             hotOptions: {
               // List of options and defaults: https://www.npmjs.com/package/svelte-loader-hot#usage
@@ -87,10 +88,8 @@ const config: Configuration = {
               optimistic: true,
             },
             preprocess: SveltePreprocess({
-              scss: true,
-              sass: true,
               postcss: {
-                plugins: [Autoprefixer],
+                plugins: [Tailwind, Autoprefixer],
               },
             }),
           },
@@ -134,6 +133,14 @@ const config: Configuration = {
             loader: MiniCssExtractPlugin.loader,
           },
           'css-loader',
+          {
+            loader: 'postcss-loader',
+            options: {
+              postcssOptions: {
+                plugins: [Tailwind],
+              },
+            },
+          },
         ],
       },
 
@@ -146,7 +153,7 @@ const config: Configuration = {
     ],
   },
   devServer: {
-    hot: true,
+    hot: hotReload,
     stats: 'none',
     contentBase: 'public',
     watchContentBase: true,
