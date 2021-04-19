@@ -126,4 +126,30 @@ describe('Basic World Class', () => {
       expect(new BaseWorld({ x: 50, y: 50 }).inBounds(new Coordinates(99, 99))).toBe(false);
     });
   });
+
+  describe('generateSpawnPoint', () => {
+    it('should generate a spawn point on the edge of the map', () => {
+      const c = world.generateSpawnPoint();
+      expect(c.x === 0 || c.x === 99 || c.y === 0 || c.y === 99).toBeTruthy();
+    });
+
+    it('should consistently generate a spawn point on the edge of the map', () => {
+      for (let i = 0; i < 1000; i++) {
+        const c = world.generateSpawnPoint();
+        expect(c.x === 0 || c.x === 99 || c.y === 0 || c.y === 99).toBeTruthy();
+      }
+    });
+  });
+
+  describe('generateRandomPoint', () => {
+    it('should always generate a point in the bounds of the map', () => {
+      for (let i = 0; i < 1000; i++) {
+        const c = world.generateRandomPoint();
+        expect(c.x).toBeLessThanOrEqual(99);
+        expect(c.x).toBeGreaterThanOrEqual(0);
+        expect(c.y).toBeLessThanOrEqual(99);
+        expect(c.y).toBeGreaterThanOrEqual(0);
+      }
+    });
+  });
 });

@@ -71,6 +71,12 @@ describe('Vector2', () => {
       expect(v1.x).toBe(vector1.x);
       expect(v1.y).toBe(vector1.y);
     });
+
+    it('handles scalar inputs', () => {
+      const v1 = vector1.subtract(1);
+      expect(v1.x).toBe(vector1.x - 1);
+      expect(v1.y).toBe(vector1.y - 1);
+    });
   });
 
   describe('multiply', () => {

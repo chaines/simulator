@@ -64,4 +64,18 @@ describe('Coordinates', () => {
       expect(c1.y).toBe(25);
     });
   });
+
+  describe('equals', () => {
+    it('returns true when compared against itself', () => {
+      expect(c1.equals(c1)).toBe(true);
+    });
+    it('returns true when compared to a copy of itself', () => {
+      const c = c1.moveX(0);
+      expect(c.equals(c1)).toBe(true);
+    });
+    it('returns false when compared to a slightly different coordinate', () => {
+      const c = c1.moveX(0.02);
+      expect(c.equals(c1)).toBe(false);
+    });
+  });
 });

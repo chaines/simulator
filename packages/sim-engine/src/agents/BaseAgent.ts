@@ -1,10 +1,14 @@
 import Vector2 from '../utils/Vector2';
-import { Agent } from '..';
+import { Agent } from '../types';
 import Coordinates from '../utils/Coordinates';
 import BaseWorld from '../worlds/BaseWorld';
 
 class BaseAgent implements Agent {
-  constructor(public coords: Coordinates, public world?: BaseWorld, public name: string = 'Basic') {}
+  constructor(
+    public coords: Coordinates,
+    public world?: BaseWorld,
+    public name: string = 'Basic',
+  ) {}
 
   isAlive() {
     return true;

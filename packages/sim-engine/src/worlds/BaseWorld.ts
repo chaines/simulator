@@ -1,4 +1,4 @@
-import { Entity } from '..';
+import { Entity } from '../types';
 import Coordinates from '../utils/Coordinates';
 
 export type BaseWorldOptions = {
@@ -92,7 +92,7 @@ class BaseWorld {
   }
 
   generateRandomPoint(): Coordinates {
-    return new Coordinates(Math.random() * this.x, Math.random() * this.y);
+    return new Coordinates(Math.random() * (this.x - 1), Math.random() * (this.y - 1));
   }
 
   cycle() {
