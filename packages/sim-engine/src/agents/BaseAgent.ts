@@ -1,5 +1,5 @@
 import Vector2 from '../utils/Vector2';
-import { Agent } from '../types';
+import { Agent, Entity } from '../types';
 import Coordinates from '../utils/Coordinates';
 import BaseWorld from '../worlds/BaseWorld';
 
@@ -31,6 +31,10 @@ class BaseAgent implements Agent {
     if (this.world === undefined) {
       throw new Error('No world assigned to agent, cannot proceed');
     }
+  }
+
+  static isAgent(a: Entity): a is Agent {
+    return 'act' in a;
   }
 }
 

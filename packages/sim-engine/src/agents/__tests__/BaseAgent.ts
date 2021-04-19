@@ -43,4 +43,17 @@ describe('BaseAgent', () => {
       expect(checkWorld1).toThrow();
     });
   });
+
+  describe('isAgent', () => {
+    it('determines if an object is an Agent', () => {
+      expect(BaseAgent.isAgent(agent1)).toBeTruthy();
+      expect(BaseAgent.isAgent(agent2)).toBeTruthy();
+
+      const e = {
+        coords: new Coordinates(0, 0),
+        name: 'Not an agent',
+      };
+      expect(BaseAgent.isAgent(e)).toBeFalsy();
+    });
+  });
 });
