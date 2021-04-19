@@ -1,4 +1,4 @@
-import { Entity } from '../types';
+import { Entity, World } from '../types';
 import Coordinates from '../utils/Coordinates';
 
 export type BaseWorldOptions = {
@@ -11,7 +11,7 @@ export type BaseWorldOptions = {
  * entities in range.
  */
 
-class BaseWorld {
+class BaseWorld implements World {
   public x: number;
   public y: number;
   public entities: Entity[];
