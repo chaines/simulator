@@ -1,14 +1,8 @@
-import Vector2 from '../utils/Vector2';
-import { Agent, Entity } from '../types';
+import { Agent, Entity, World } from '../types';
 import Coordinates from '../utils/Coordinates';
-import BaseWorld from '../worlds/BaseWorld';
 
 class BaseAgent implements Agent {
-  constructor(
-    public coords: Coordinates,
-    public world?: BaseWorld,
-    public name: string = 'Basic',
-  ) {}
+  constructor(public coords: Coordinates, public world?: World, public name: string = 'Basic') {}
 
   isAlive() {
     return true;
@@ -19,18 +13,13 @@ class BaseAgent implements Agent {
   }
 
   act(cycleTime?: number) {
-    this.checkWorld();
-    this.world = this.world as BaseWorld;
-    let v: Vector2;
-    do {
-      v = new Vector2(Math.random() - 0.5, Math.random() - 0.5);
-    } while (!this.world.inBounds(this.coords.add(v)));
+    if (!this.checkWorld()) {
+      throw new Error('No world assigned to agent!');
+    }
   }
 
-  checkWorld() {
-    if (this.world === undefined) {
-      throw new Error('No world assigned to agent, cannot proceed');
-    }
+  checkWorld(): this is { world: World } {
+    return this.world !== undefined;
   }
 
   static isAgent(a: Entity): a is Agent {

@@ -30,17 +30,20 @@ describe('BaseAgent', () => {
       agent2.act();
       expect(spy).toBeCalled();
     });
+
+    it('throws an error if no world is defined', () => {
+      const act = agent1.act.bind(agent1);
+      expect(act).toThrow();
+    });
   });
 
   describe('checkWorld', () => {
-    it("doesn't throw errors if the world exists", () => {
-      const checkWorld2 = agent2.checkWorld.bind(agent2);
-      expect(checkWorld2).not.toThrow();
+    it('returns true if world is assigned', () => {
+      expect(agent2.checkWorld()).toBeTruthy();
     });
 
     it('does throw an error if the world is not supplied', () => {
-      const checkWorld1 = agent1.checkWorld.bind(agent1);
-      expect(checkWorld1).toThrow();
+      expect(agent1.checkWorld()).toBeFalsy();
     });
   });
 

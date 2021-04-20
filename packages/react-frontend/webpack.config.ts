@@ -17,24 +17,26 @@ const isProduction = mode === 'production';
 const isDevelopment = !isProduction;
 
 const config: Configuration = {
-  mode: isProduction ? 'production' : 'development',
+  mode: 'development',
   entry: path.join(__dirname, 'src', 'index.tsx'),
   output: {
-    path: path.join(__dirname, 'dist'),
+    path: path.join(__dirname, 'dist/'),
     publicPath: '/',
     filename: 'bundle.js',
   },
+  target: 'web',
+  devtool: 'source-map',
   resolve: {
-    extensions: ['.js', '.jsx', '.css', '.scss', '.sass', 'ts', '.tsx'],
+    extensions: ['.js', '.jsx', '.css', '.scss', '.sass', '.ts', '.tsx'],
+    alias: {
+      '@simulation-engine': path.join(__dirname, '..', 'sim-engine', 'src'),
+    },
   },
   devServer: {
     contentBase: path.join(__dirname, 'dist/'),
     publicPath: '/',
-    port: Number(process.env.PORT) || 8080,
+    port: 8080,
     host: '0.0.0.0',
-    compress: true,
-    hot: true,
-    historyApiFallback: true,
   },
   plugins: [
     new CleanWebpackPlugin(),
@@ -68,42 +70,22 @@ const config: Configuration = {
       {
         test: /\.s(c|a)ss$/,
         use: [
+          'style-loader',
           {
-            loader: MiniCssExtractPlugin.loader,
+            loader: 'css-loader',
+            options: { url: false },
           },
-          'css-loader',
           {
             loader: 'postcss-loader',
-            options: {
-              postcssOptions: {
-                plugins: [Autoprefixer, Tailwind],
-              },
-            },
+            options: { postcssOptions: { plugins: [Tailwind, Autoprefixer] } },
           },
           'sass-loader',
         ],
       },
       {
-        test: /.css/,
-        use: [
-          {
-            loader: MiniCssExtractPlugin.loader,
-          },
-          'css-lader',
-          {
-            loader: 'postcss-loader',
-            options: {
-              postcssOptions: {
-                plugins: [Autoprefixer, Tailwind],
-              },
-            },
-          },
-        ],
-      },
-      {
-        test: /\.tsx?$/,
+        test: /\.(ts|tsx)$/,
         exclude: path.join(__dirname, 'node_modules/'),
-        use: 'babel-loader',
+        loader: 'ts-loader',
       },
     ],
   },
