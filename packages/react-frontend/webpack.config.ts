@@ -17,7 +17,7 @@ const isProduction = mode === 'production';
 const isDevelopment = !isProduction;
 
 const config: Configuration = {
-  mode: 'development',
+  mode: isProduction ? 'production' : 'development',
   entry: path.join(__dirname, 'src', 'index.tsx'),
   output: {
     path: path.join(__dirname, 'dist/'),
@@ -71,7 +71,7 @@ const config: Configuration = {
       {
         test: /\.s(c|a)ss$/,
         use: [
-          'style-loader',
+          MiniCssExtractPlugin.loader,
           {
             loader: 'css-loader',
             options: { url: false },

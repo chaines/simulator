@@ -1,7 +1,7 @@
 module.exports = {
   darkMode: 'class',
   future: {},
-  purge: ['./src/**/*.css', './src/**/*.svelte'],
+  purge: ['./src/**/*.scss', './src/**/*.tsx'],
   theme: {
     extend: {},
   },
