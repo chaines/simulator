@@ -35,7 +35,7 @@ class HungryAgent extends BaseAgent {
   private _action: HungryAgentAction;
 
   private _currDirection: Vector2;
-  private static BASE_ENERGY = 75;
+  private static BASE_ENERGY = 150;
 
   constructor(
     { coords, speed, size, detectionRange, mutationRate }: HungryAgentOptions,

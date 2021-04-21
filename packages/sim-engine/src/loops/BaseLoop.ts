@@ -29,14 +29,12 @@ class BaseLoop {
     if (this.world !== null) {
       this.agents = this.world.entities.filter(e => isAgent(e)) as Agent[];
     }
-    console.log('Loop agents: ', this.agents);
   }
 
   public *step(): Generator<LoopData> {
     if (this.world === null) {
       throw new Error(BaseLoop.NO_WORLD_ERROR);
     }
-    console.log(this.agents.length);
 
     while (this.agents.length !== 0) {
       do {

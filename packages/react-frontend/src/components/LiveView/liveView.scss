@@ -1,17 +1,11 @@
 .liveView {
-  position: absolute;
   width: calc(100% - 2rem);
   height: calc(100% - 2rem);
 
   &__container {
-    width: 80vh;
-    height: 80vh;
-    position: absolute;
-    box-sizing: content-box;
+    width: 80%;
     padding-right: 2rem;
-    padding-bottom: 2rem;
-    top: calc(10vh - 1rem);
-    left: calc(50vw - 40vh - 1rem);
+    padding-bottom: calc(80% + 2rem);
   }
 
   &__object--food {

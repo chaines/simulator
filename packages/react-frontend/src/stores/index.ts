@@ -4,7 +4,8 @@
 //       It's theoretically possible to refactor the actual *logic* of nextTick into a seperate function,
 //       and leave the assignment in nextTick. - chaines (April 2021)
 
-import { makeAutoObservable, computed, observable } from 'mobx';
+import { makeAutoObservable, computed, observable, configure } from 'mobx';
+configure({ enforceActions: 'never' });
 import HistoricGeneration from './HistoricGeneration';
 import UIStore from './UI';
 
@@ -34,13 +35,13 @@ export enum SimulationStatus {
 
 const defaults: SimSettings = {
   worldSize: 1000,
-  foodPerDay: 50,
+  foodPerDay: 30,
   initialPopulation: 50,
   initialAgentSize: 1,
   initialAgentSpeed: 2,
   initialAgentSense: 3,
   agentMutationRate: 1,
-  dayLength: 100,
+  dayLength: 50,
 };
 
 class rootStore {
@@ -51,16 +52,19 @@ class rootStore {
   private _world: GeneticDriftWorld;
   private _loop: BaseLoop;
   private _generator: Generator<LoopData>;
-  private _foodPerDay = defaults.foodPerDay;
-  private _cycleLength = defaults.dayLength;
-  private _worldDimension = Math.ceil(Math.sqrt(defaults.worldSize) - 0.5);
-  private _initialPopulation = defaults.initialPopulation;
+  private _foodPerDay = localStorage.foodPerDay ?? defaults.foodPerDay;
+  private _cycleLength = localStorage.dayLength ?? defaults.dayLength;
+  private _worldDimension =
+    localStorage.worldDimension ?? Math.ceil(Math.sqrt(defaults.worldSize) - 0.5);
+  private _initialPopulation = localStorage.initialPopulation ?? defaults.initialPopulation;
   private _initialPopSettings = {
     size: defaults.initialAgentSize,
-    speed: defaults.initialAgentSpeed,
-    detectionRange: defaults.initialAgentSense,
-    mutationRate: defaults.agentMutationRate,
+    speed: localStorage.initialAgentSpeed ?? defaults.initialAgentSpeed,
+    detectionRange: localStorage.initialAgentSense ?? defaults.initialAgentSense,
+    mutationRate: localStorage.agentMutationRate ?? defaults.agentMutationRate,
   };
+
+  public UIStore = UIStore;
 
   //=========================
   // Getters: 'Computed'
@@ -109,11 +113,11 @@ class rootStore {
   }
 
   get nextTick() {
-    if (this._status === SimulationStatus.DEAD || this._status === SimulationStatus.UNINITIALIZED)
+    if (this.status === SimulationStatus.DEAD || this.status === SimulationStatus.UNINITIALIZED)
       return null;
     let result = this._generator.next();
     if (result.done || result.value.type === 'Dead') {
-      this._status = SimulationStatus.DEAD;
+      this.status = SimulationStatus.DEAD;
       return null;
     }
     if (result.value.type === 'Cycle') {
@@ -121,14 +125,14 @@ class rootStore {
       this.setTickData(result.value);
       result = this._generator.next();
       if (result.done || result.value.type === 'Dead') {
-        this._status = SimulationStatus.DEAD;
+        this.status = SimulationStatus.DEAD;
         return null;
       } else {
-        this._status = SimulationStatus.WAITING;
+        this.status = SimulationStatus.WAITING;
         return this.lastTick;
       }
     }
-    this._status = SimulationStatus.RUNNING;
+    this.status = SimulationStatus.RUNNING;
     this.setTickData(result.value);
     return this.lastTick;
   }
@@ -145,9 +149,9 @@ class rootStore {
     this.setTickData(lastResult.value);
     this.addHistoricData(result.value);
     if (result.done || result.value.type === 'Dead') {
-      this._status = SimulationStatus.DEAD;
+      this.status = SimulationStatus.DEAD;
     } else {
-      this._status = SimulationStatus.WAITING;
+      this.status = SimulationStatus.WAITING;
     }
     return this.lastGeneration;
   }
@@ -158,6 +162,48 @@ class rootStore {
 
   set worldSize(size: number) {
     this._worldDimension = Math.ceil(Math.sqrt(size) - 0.5);
+    localStorage.worldDimension = this._worldDimension;
+    this.reset();
+  }
+
+  set status(s: SimulationStatus) {
+    this._status = s;
+  }
+
+  set foodPerDay(food: number) {
+    localStorage.foodPerDay = food;
+    this._foodPerDay = food;
+    this._world._foodPerCycle = food;
+  }
+
+  set initialAgentSpeed(speed: number) {
+    localStorage.initialAgentSpeed = speed;
+    this._initialPopSettings.speed = speed;
+    this.reset();
+  }
+
+  set initialAgentSense(sense: number) {
+    localStorage.initialAgentSense = sense;
+    this._initialPopSettings.detectionRange = sense;
+    this.reset();
+  }
+
+  set agentMutationRate(rate: number) {
+    localStorage.agentMutationRate = rate;
+    this._initialPopSettings.mutationRate = rate;
+    this.reset();
+  }
+
+  set dayLength(length: number) {
+    localStorage.dayLength = length;
+    this._cycleLength = length;
+    this.reset();
+  }
+
+  set initialPopulation(pop: number) {
+    localStorage.initialPopulation = pop;
+    this._initialPopulation = pop;
+    this.reset();
   }
 
   constructor() {
@@ -189,7 +235,8 @@ class rootStore {
   }
 
   reset(settings?: SimSettings) {
-    this.worldSize = settings.worldSize ?? this.worldSize;
+    settings = settings ?? {};
+    if (settings.worldSize) this.worldSize = settings.worldSize ?? this.worldSize;
     this._initialPopSettings = {
       size: settings.initialAgentSize ?? this._initialPopSettings.size,
       speed: settings.initialAgentSpeed ?? this._initialPopSettings.speed,
@@ -210,6 +257,8 @@ class rootStore {
       world: this._world,
       cycleLength: this._cycleLength,
     });
+    this._generationCount = 0;
+    this._historicGenerationData = [];
     this._generator = this._loop.step();
     this._status = SimulationStatus.WAITING;
   }

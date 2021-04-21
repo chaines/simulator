@@ -20,7 +20,7 @@ export type HungryPopSettings = {
 };
 
 class GeneticDriftWorld extends BaseWorld {
-  private _foodPerCycle: number;
+  public _foodPerCycle: number;
   private _initialPopSize: number;
   private _initialPopSettings: {};
 

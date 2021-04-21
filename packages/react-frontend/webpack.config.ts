@@ -36,6 +36,7 @@ const config: Configuration = {
     contentBase: path.join(__dirname, 'dist/'),
     publicPath: '/',
     port: 8080,
+    hot: true,
     host: '0.0.0.0',
   },
   plugins: [
