@@ -52,16 +52,16 @@ class rootStore {
   private _world: GeneticDriftWorld;
   private _loop: BaseLoop;
   private _generator: Generator<LoopData>;
-  private _foodPerDay = localStorage.foodPerDay ?? defaults.foodPerDay;
-  private _cycleLength = localStorage.dayLength ?? defaults.dayLength;
+  private _foodPerDay = Number(localStorage.foodPerDay) || defaults.foodPerDay;
+  private _cycleLength = Number(localStorage.dayLength) || defaults.dayLength;
   private _worldDimension =
-    localStorage.worldDimension ?? Math.ceil(Math.sqrt(defaults.worldSize) - 0.5);
-  private _initialPopulation = localStorage.initialPopulation ?? defaults.initialPopulation;
+    Number(localStorage.worldDimension) || Math.ceil(Math.sqrt(defaults.worldSize) - 0.5);
+  private _initialPopulation = Number(localStorage.initialPopulation) || defaults.initialPopulation;
   private _initialPopSettings = {
     size: defaults.initialAgentSize,
-    speed: localStorage.initialAgentSpeed ?? defaults.initialAgentSpeed,
-    detectionRange: localStorage.initialAgentSense ?? defaults.initialAgentSense,
-    mutationRate: localStorage.agentMutationRate ?? defaults.agentMutationRate,
+    speed: Number(localStorage.initialAgentSpeed) || defaults.initialAgentSpeed,
+    detectionRange: Number(localStorage.initialAgentSense) || defaults.initialAgentSense,
+    mutationRate: Number(localStorage.agentMutationRate) || defaults.agentMutationRate,
   };
 
   public UIStore = UIStore;

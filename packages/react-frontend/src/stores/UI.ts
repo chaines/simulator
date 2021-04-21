@@ -15,8 +15,8 @@ class UIStore {
     ? Pages[Pages[localStorage.currentPage]]
     : Pages.LiveView;
   private _darkMode = false;
-  private _tableSize = localStorage.tableSize ?? 200;
-  private _graphSize = localStorage.graphSize ?? 1000;
+  private _tableSize = Number(localStorage.tableSize) || 200;
+  private _graphSize = Number(localStorage.graphSize) || 1000;
   private _agentGraphRaw = localStorage.agentGraphRaw === 'true';
   private _agentGraphTrend = localStorage.agentGraphTrend
     ? localStorage.agentGraphTrend === 'true'
