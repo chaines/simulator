@@ -10,7 +10,7 @@ const NavBar = observer(() => {
   console.log(UIStore.currentPage);
   console.log(Pages['LiveView']);
   return (
-    <div className="w-24 bg-gray-300 dark:bg-gray-900 flex flex-col">
+    <div className="lg:w-24 bg-gray-300 dark:bg-gray-900 flex lg:flex-col sticky top-0 lg:relative z-10">
       <MagnifyingGlassIcon
         active={UIStore.currentPage === Pages.LiveView}
         onClick={() => (UIStore.currentPage = Pages.LiveView)}

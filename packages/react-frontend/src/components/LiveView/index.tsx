@@ -27,7 +27,10 @@ const LiveView = observer(() => {
       className="relative w-full h-full flex flex-col justify-center items-center"
       ref={container}
     >
-      <div className="relative pr-8 pb-8" ref={liveViewElement}>
+      <div className="lg:hidden p-4 rounded-lg border-2 border-yellow-400 bg-yellow-100 text-yellow-700 w-full">
+        Unfortunately, Live view is currently unavailable on mobile
+      </div>
+      <div className="relative pr-8 pb-8 hidden lg:block" ref={liveViewElement}>
         <div className="liveView">
           {RootStore.lastTick?.objects.map((food) => (
             <Food

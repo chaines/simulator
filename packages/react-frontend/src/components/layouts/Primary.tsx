@@ -5,11 +5,11 @@ import Information from './Information';
 
 const PrimaryLayout = () => {
   return (
-    <main className="w-full h-screen max-h-screen bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100 flex flex-col text-lg">
+    <main className="w-full min-h-screen lg:h-screen lg:max-h-screen bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100 flex flex-col text-lg">
       <div className="w-full h-16 bg-gray-800 text-white dark:bg-gray-100 dark:text-gray-800 p-4 font-bold text-lg">
         Simulation Engine
       </div>
-      <div className="w-full flex-1 flex min-h-0">
+      <div className="w-full flex-1 flex flex-col lg:flex-row min-h-0">
         <NavBar />
         <Content />
         <Information />

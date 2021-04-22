@@ -131,18 +131,26 @@ const clearCanvas = (canvas: HTMLCanvasElement) => {
   canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
 };
 
+const redrawCanvas = (canvas: HTMLCanvasElement) => {
+  canvas.height = canvas.clientHeight;
+  canvas.width = canvas.clientWidth;
+};
+
 const Graph = observer(({ attribute = 'agents', movingAverage = false, raw = true }) => {
   const canvas = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
-    canvas.current.height = canvas.current.clientHeight;
-    canvas.current.width = canvas.current.clientWidth;
+    redrawCanvas(canvas.current);
+    document.addEventListener('resize', () => {
+      redrawCanvas(canvas.current);
+      redraw(canvas.current, attribute, movingAverage, raw, !UIStore.running);
+    });
   }, []);
   useEffect(() => {
     if (RootStore.generationCount)
       redraw(canvas.current, attribute, movingAverage, raw, !UIStore.running);
     else clearCanvas(canvas.current);
   }, [RootStore.generationCount, UIStore.running]);
-  return <canvas ref={canvas} className="h-80 w-full bg-white dark:bg-gray-900"></canvas>;
+  return <canvas ref={canvas} className="h-80 w-96 bg-white dark:bg-gray-900 min-w-full"></canvas>;
 });
 
 export default Graph;
