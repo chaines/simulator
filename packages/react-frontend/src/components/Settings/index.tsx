@@ -98,8 +98,11 @@ const SettingsView = observer(() => {
               className="block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:bg-white focus:border-gray-500"
               id="worldSize"
               type="number"
-              value={RootStore.worldSize}
-              onChange={(e) => (RootStore.worldSize = Number(e.target.value))}
+              defaultValue={RootStore.worldSize}
+              onBlur={(e) => {
+                RootStore.worldSize = Number(e.target.value);
+                e.target.value = RootStore.worldSize;
+              }}
             />
           </div>
         </div>
