@@ -1,7 +1,17 @@
 module.exports = {
   darkMode: 'class',
   future: {},
-  purge: ['./src/**/*.scss', './src/**/*.tsx'],
+  purge: {
+    content: ['./src/**/*.scss', './src/**/*.tsx'],
+    options: {
+      safelist: [
+        /^(text|border)-red-(4|6)00/,
+        /^(text|border)-blue-(4|6)00/,
+        /^(text|border)-purple-(4|6)00/,
+        /^(text|border)-green-(4|6)00/,
+      ],
+    },
+  },
   theme: {
     extend: {},
   },
